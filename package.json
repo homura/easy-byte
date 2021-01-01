@@ -1,19 +1,20 @@
 {
-  "name": "typescript-lib-starter",
+  "name": "easy-byte",
   "version": "0.0.0",
-  "description": "A TypeScript library starter",
+  "description": "A user-friendly byte read/write library",
   "main": "lib/index.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/homura/typescript-lib-starter.git"
-  },
+  "files": [
+    "src",
+    "lib"
+  ],
+  "repository": "https://github.com/homura/easy-byte",
   "keywords": [],
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/homura/typescript-lib-starter/issues"
+    "url": "https://github.com/homura/easy-byte/issues"
   },
-  "homepage": "https://github.com/homura/typescript-lib-starter#readme",
+  "homepage": "https://github.com/homura/easy-byte#readme",
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
     "test": "jest -c jest.config.js",
