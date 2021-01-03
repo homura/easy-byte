@@ -129,12 +129,14 @@ export const U128BE = createField<bigint>(16, bigIntReader(16, false, false), bi
  * Create a coder for a fixed-length byte
  * that can easily convert a string of bytes into a plain JS object
  * @example
+ * ```typescript
  * const struct = createFixedStruct()
  *  .field('messageType', U8)
  *  .field('messageContent', U64);
  *
  * const parsed = struct.decode(Buffer.from('...'))
  * console.log(parsed) // { messageType: 0, messageContent: ...}
+ * ```
  */
 // eslint-disable-next-line @typescript-eslint/ban-types
 export function createFixedStruct(): FixedStruct<{}> {
