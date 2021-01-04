@@ -95,16 +95,16 @@
 				</a>
 				<pre><code class="language-ts"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span>
 <span style="color: #000000">  </span><span style="color: #001080">pipe</span><span style="color: #000000">,</span>
-<span style="color: #000000">  </span><span style="color: #001080">littleEndianByteString</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">convertEndian</span><span style="color: #000000">,</span>
 <span style="color: #000000">  </span><span style="color: #001080">pad0x</span><span style="color: #000000">,</span>
-<span style="color: #000000">  </span><span style="color: #001080">padZeroToEvenLength</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">prependZeroToEvenLength</span><span style="color: #000000">,</span>
 <span style="color: #000000">  </span><span style="color: #001080">rm0x</span><span style="color: #000000">,</span>
 <span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;easy-byte&#039;</span><span style="color: #000000">;</span>
 
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">customFormat</span><span style="color: #000000"> = </span><span style="color: #795E26">pipe</span><span style="color: #000000">(</span>
 <span style="color: #000000">  </span><span style="color: #001080">rm0x</span><span style="color: #000000">,</span>
-<span style="color: #000000">  </span><span style="color: #001080">padZeroToEvenLength</span><span style="color: #000000">,</span>
-<span style="color: #000000">  </span><span style="color: #001080">littleEndianByteString</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">prependZeroToEvenLength</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">convertEndian</span><span style="color: #000000">,</span>
 <span style="color: #000000">  </span><span style="color: #001080">pad0x</span><span style="color: #000000">,</span>
 <span style="color: #000000">);</span>
 <span style="color: #795E26">customFormat</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;0x001020304&#039;</span><span style="color: #000000">); </span><span style="color: #008000">// 0x0403020100</span>
@@ -114,8 +114,11 @@
 				</a>
 				<pre><code class="language-ts"><span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">formatByteLike</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;easy-byte&#039;</span><span style="color: #000000">;</span>
 
+<span style="color: #008000">// format a big endian byte string to big endian</span>
+<span style="color: #008000">// (0x)  0_01_02_03_04</span>
+<span style="color: #008000">// (0x) 04_03_02_01_00</span>
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">formated</span><span style="color: #000000"> = </span><span style="color: #795E26">formatByteLike</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;0x001020304&#039;</span><span style="color: #000000">, {</span>
-<span style="color: #000000">  </span><span style="color: #001080">le:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">convertEndian:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span><span style="color: #000000">,</span>
 <span style="color: #000000">  </span><span style="color: #001080">rm0x:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span><span style="color: #000000">,</span>
 <span style="color: #000000">  </span><span style="color: #001080">byteSize:</span><span style="color: #000000"> </span><span style="color: #098658">8</span><span style="color: #000000">,</span>
 <span style="color: #000000">});</span>
@@ -197,25 +200,28 @@
 						<a href="modules.html#u8" class="tsd-kind-icon">U8</a>
 					</li>
 					<li class=" tsd-kind-function">
+						<a href="modules.html#convertendian" class="tsd-kind-icon">convert<wbr>Endian</a>
+					</li>
+					<li class=" tsd-kind-function">
 						<a href="modules.html#createfixedstruct" class="tsd-kind-icon">create<wbr>Fixed<wbr>Struct</a>
 					</li>
 					<li class=" tsd-kind-function">
 						<a href="modules.html#formatbytelike" class="tsd-kind-icon">format<wbr>Byte<wbr>Like</a>
 					</li>
 					<li class=" tsd-kind-function">
-						<a href="modules.html#littleendianbytestring" class="tsd-kind-icon">little<wbr>Endian<wbr>Byte<wbr>String</a>
-					</li>
-					<li class=" tsd-kind-function">
 						<a href="modules.html#pad0x" class="tsd-kind-icon">pad0x</a>
-					</li>
-					<li class=" tsd-kind-function">
-						<a href="modules.html#padzerotoevenlength" class="tsd-kind-icon">pad<wbr>Zero<wbr>ToEven<wbr>Length</a>
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="modules.html#pipe" class="tsd-kind-icon">pipe</a>
 					</li>
 					<li class=" tsd-kind-function">
+						<a href="modules.html#prependzerotoevenlength" class="tsd-kind-icon">prepend<wbr>Zero<wbr>ToEven<wbr>Length</a>
+					</li>
+					<li class=" tsd-kind-function">
 						<a href="modules.html#rm0x" class="tsd-kind-icon">rm0x</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#safepadzero" class="tsd-kind-icon">safe<wbr>Pad<wbr>Zero</a>
 					</li>
 					<li class=" tsd-kind-function">
 						<a href="modules.html#startswith0x" class="tsd-kind-icon">starts<wbr>With0x</a>
