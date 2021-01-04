@@ -30,6 +30,7 @@ function createField<T>(byteWidth: number, read: Reader<T>, write: Writer<T>): F
   return { byteWidth, read, write };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type NamedField<T = any, K extends string = string> = [K, Field<T>];
 
 interface Struct<S> {
@@ -80,7 +81,15 @@ class FixedStruct<T> implements Struct<T> {
 
 function bigIntReader(byteSize: number, le?: boolean, signed?: boolean): Reader<bigint> {
   return function (buf: Buffer, offset = 0) {
-    const byteString = formatByteLike(buf.slice(offset, offset + byteSize), { byteSize, le, pad0x: true });
+    const byteString = formatByteLike(buf.slice(offset, offset + byteSize), {
+      byteSize,
+      // when the bytes are marked as little endian,
+      // in order to parse the bytes as the correct BigInt,
+      // the bytes need to be reversed to big endian
+      convertEndian: le,
+      // padding a 0x to ensure that it is considered by BigInt as hexadecimal
+      pad0x: true,
+    });
     const val = BigInt(byteString);
     if (!signed) return val;
 
@@ -97,7 +106,7 @@ function bigIntWriter(byteSize: number, le?: boolean, signed?: boolean): Writer<
     let val = input;
     if (signed && val < 0n) val = (1n << BigInt(byteSize * 8)) + val;
 
-    const byteString = formatByteLike(val.toString(16), { byteSize, le });
+    const byteString = formatByteLike(val.toString(16), { byteSize, convertEndian: le });
     buf.write(byteString, offset, 'hex');
   };
 }

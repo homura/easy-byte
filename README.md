@@ -37,7 +37,7 @@ console.log(messageStruct.decode(buf)); // { messageHeader: 0x01, messageBody: 0
 ```ts
 import {
   pipe,
-  littleEndianByteString,
+  convertEndian,
   pad0x,
   padZeroToEvenLength,
   rm0x,
@@ -46,7 +46,7 @@ import {
 const customFormat = pipe(
   rm0x,
   padZeroToEvenLength,
-  littleEndianByteString,
+  convertEndian,
   pad0x,
 );
 customFormat('0x001020304'); // 0x0403020100
@@ -57,8 +57,11 @@ customFormat('0x001020304'); // 0x0403020100
 ```ts
 import { formatByteLike } from 'easy-byte';
 
+// format a big endian byte string to big endian
+// (0x)  0_01_02_03_04
+// (0x) 04_03_02_01_00
 const formated = formatByteLike('0x001020304', {
-  le: true,
+  convertEndian: true,
   rm0x: true,
   byteSize: 8,
 });

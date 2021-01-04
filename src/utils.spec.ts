@@ -1,4 +1,4 @@
-import { formatByteLike, littleEndianByteString, pad0x, padZeroToEvenLength, pipe, rm0x, toBuffer } from './utils';
+import { formatByteLike, convertEndian, pad0x, padZeroToEvenLength, pipe, rm0x, toBuffer } from './utils';
 
 test('pipe formatByteLike', () => {
   expect(pipe(formatByteLike)('0x')).toEqual('0x');
@@ -8,12 +8,16 @@ test('pipe formatByteLike', () => {
   expect(formatByteLike('0x', { rm0x: true })).toEqual('');
   expect(formatByteLike('0x11', { rm0x: true })).toEqual('11');
   expect(formatByteLike('0x11', { rm0x: true, byteSize: 2 })).toEqual('0011');
-  expect(formatByteLike('0x11', { rm0x: true, byteSize: 2, le: true })).toEqual('1100');
+  expect(formatByteLike('0x11', { rm0x: true, byteSize: 2, convertEndian: true })).toEqual('1100');
 
-  expect(pipe(formatByteLike, rm0x, littleEndianByteString)('0x01020304')).toEqual('04030201');
-  expect(pipe(formatByteLike, rm0x, littleEndianByteString)('')).toEqual('');
+  expect(formatByteLike('0x010', { le: true })).toEqual('0x0100');
+  expect(formatByteLike('0x0100', { le: true })).toEqual('0x0100');
+  expect(formatByteLike('0x010', { le: true, byteSize: 8 })).toEqual('0x0100000000000000');
 
-  expect(pipe(rm0x, padZeroToEvenLength, littleEndianByteString, pad0x)('0x001020304')).toEqual('0x0403020100');
+  expect(pipe(formatByteLike, rm0x, convertEndian)('0x01020304')).toEqual('04030201');
+  expect(pipe(formatByteLike, rm0x, convertEndian)('')).toEqual('');
+
+  expect(pipe(rm0x, padZeroToEvenLength, convertEndian, pad0x)('0x001020304')).toEqual('0x0403020100');
 
   expect(pipe(formatByteLike, toBuffer)('')).toEqual(Buffer.from([]));
   expect(pipe(formatByteLike, toBuffer)('10')).toEqual(Buffer.from([0x10]));

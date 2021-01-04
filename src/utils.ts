@@ -2,6 +2,19 @@ import { Buffer } from 'buffer';
 
 type Fn<I, O> = (input: I) => O;
 
+/**
+ * a string that contains only hexadecimal characters and does not start with 0
+ */
+type ByteString = string;
+/**
+ * a string that contains hexadecimal characters and starts with 0
+ */
+type HexString = string;
+
+type ByteLikeString = ByteString | HexString;
+
+export type ByteLike = Uint8Array | Buffer | ByteLikeString;
+
 interface Pipe {
   <I, O>(fn: Fn<I, O>): Fn<I, O>;
 
@@ -19,32 +32,54 @@ export const pipe: Pipe = (...fn) => {
   return fn.reduce((fn1, fn2) => (x: unknown) => fn2(fn1(x)));
 };
 
-export type ByteLike = Uint8Array | Buffer | string;
-
 export function startsWith0x(x: unknown): boolean {
   return typeof x === 'string' && x.startsWith('0x');
 }
 
-export function rm0x(input: string): string {
+export function rm0x(input: ByteLikeString): string {
   if (startsWith0x(input)) return input.slice(2);
   return input;
 }
 
-export function pad0x(input: string): string {
+export function pad0x(input: ByteLikeString): string {
   if (startsWith0x(input)) return input;
   return '0x' + input;
 }
 
-export function padZeroToEvenLength(input: string): string {
+export function safePadZero(input: ByteString, le?: boolean, byteSize?: number): string {
+  const isEvenLength = input.length % 2 === 0;
+  const isUnfixed = byteSize === undefined;
+
+  if (isEvenLength && isUnfixed) return input;
+
+  const padEvenLength = isEvenLength ? 0 : 1;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const expectedByteSize = isUnfixed ? (input.length + padEvenLength) / 2 : byteSize!;
+  // a byte is composed by 2 hex character
+  const expectedByteStringLength = expectedByteSize * 2;
+
+  if (le) {
+    return input.slice(0, expectedByteStringLength).padEnd(expectedByteStringLength, '0');
+  }
+
+  return input.slice(-expectedByteStringLength).padStart(expectedByteStringLength, '0');
+}
+
+export function padZeroToEvenLength(input: ByteString): string {
   if (input.length % 2 === 0) return input;
   return `0${input}`;
 }
 
-export function littleEndianByteString(input: string): string {
+/**
+ * convert between little-endian and big-endian bytes.
+ * make sure the input is a bytes string of even length and **NOT** starting with 0x
+ * @param input
+ */
+export function convertEndian(input: ByteString): string {
   if (!input || input.length < 2) return input;
   const grouped = padZeroToEvenLength(input).match(/../g);
-  if (!grouped) return '';
-  return grouped.reverse().join('');
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  return grouped!.reverse().join('');
 }
 
 export interface FormatOptions {
@@ -60,9 +95,12 @@ export interface FormatOptions {
    * expected byte size
    */
   byteSize?: number;
-
   /**
-   * little endian
+   * reverse input bytes, `BE -> LE` or `LE -> BE`
+   */
+  convertEndian?: boolean;
+  /**
+   * marks the input as a little endian byte string
    */
   le?: boolean;
 }
@@ -72,29 +110,17 @@ export interface FormatOptions {
  * the length of the output byte string used to represent the byte is an even number
  */
 export function formatByteLike(input: ByteLike, options: FormatOptions = {}): string {
-  // a byte string composed by many hex characters without 0x
-  let byteString;
+  let byteString: string;
 
   if (typeof input === 'string') byteString = rm0x(input);
   else byteString = Buffer.from(input).toString('hex');
 
-  byteString = padZeroToEvenLength(byteString);
+  byteString = safePadZero(byteString, options.le, options.byteSize);
 
-  const expectedByteSize = options.byteSize === undefined ? byteString.length / 2 : options.byteSize;
   const shouldPad0x = !options.rm0x && (options.pad0x || startsWith0x(input));
 
-  if (expectedByteSize <= 0 && shouldPad0x) return '0x';
-  if (expectedByteSize <= 0) return '';
-
-  if (expectedByteSize !== byteString.length * 2) {
-    byteString = byteString.slice(-expectedByteSize * 2).padStart(expectedByteSize * 2, '0');
-  }
-  if (options.le) {
-    byteString = littleEndianByteString(byteString);
-  }
-  if (shouldPad0x) {
-    byteString = pad0x(byteString);
-  }
+  if (options.convertEndian) byteString = convertEndian(byteString);
+  if (shouldPad0x) byteString = pad0x(byteString);
 
   return byteString;
 }
