@@ -39,13 +39,13 @@ import {
   pipe,
   convertEndian,
   pad0x,
-  padZeroToEvenLength,
+  prependZeroToEvenLength,
   rm0x,
 } from 'easy-byte';
 
 const customFormat = pipe(
   rm0x,
-  padZeroToEvenLength,
+  prependZeroToEvenLength,
   convertEndian,
   pad0x,
 );

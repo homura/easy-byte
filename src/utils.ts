@@ -17,9 +17,7 @@ export type ByteLike = Uint8Array | Buffer | ByteLikeString;
 
 interface Pipe {
   <I, O>(fn: Fn<I, O>): Fn<I, O>;
-
   <I1, O1, I2, O2>(fn1: Fn<I1, O1>, fn2: Fn<I2, O2>): Fn<I1, O2>;
-
   <I1, O1, I2, O2, I3, O3>(fn1: Fn<I1, O1>, fn2: Fn<I2, O2>, fn3: Fn<I3, O3>): Fn<I1, O3>;
 
   <I, O>(...fn: Fn<I, O>[]): Fn<I, O>;
@@ -65,7 +63,7 @@ export function safePadZero(input: ByteString, le?: boolean, byteSize?: number):
   return input.slice(-expectedByteStringLength).padStart(expectedByteStringLength, '0');
 }
 
-export function padZeroToEvenLength(input: ByteString): string {
+export function prependZeroToEvenLength(input: ByteString): string {
   if (input.length % 2 === 0) return input;
   return `0${input}`;
 }
@@ -77,7 +75,7 @@ export function padZeroToEvenLength(input: ByteString): string {
  */
 export function convertEndian(input: ByteString): string {
   if (!input || input.length < 2) return input;
-  const grouped = padZeroToEvenLength(input).match(/../g);
+  const grouped = prependZeroToEvenLength(input).match(/../g);
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   return grouped!.reverse().join('');
 }
